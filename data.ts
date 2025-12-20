@@ -1,7 +1,7 @@
 export const WEDDING_DATE = new Date('2025-12-31T08:00:00');
 
 export const COUPLE_NAMES = {
-  short: "Yusu & Fulan",
+  short: "Yusuf & Fulan",
   long: "Yusuf Efendi & Fulan Efendi",
 };
 
