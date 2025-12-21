@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { WEDDING_DATE, COUPLE_NAMES, COUPLE_DATA, GALLERY_IMAGES, EVENT_DATA, GIFT_DATA } from './data';
 import { CountdownTime, Wish } from './types';
+import metadata from './metadata.json';
 
 // Setup Gemini AI
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
@@ -37,6 +38,11 @@ const App: React.FC = () => {
     if (name) {
       setToName(name);
     }
+  }, []);
+
+  // Set document title from metadata
+  useEffect(() => {
+    document.title = metadata.title;
   }, []);
 
   const toggleMusic = () => {
@@ -277,10 +283,12 @@ const App: React.FC = () => {
             </section>
 
             {/* Couple Section */}
-            <section id="couple" className="py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
-              <div className="text-center mb-16">
+            <section id="couple" className="relative overflow-hidden py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
+              <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -top-10 -right-10 w-64 h-64 opacity-30 transform rotate-180" />
+              <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -bottom-10 -left-10 w-64 h-64 opacity-30" />
+              <div className="text-center mb-16 relative z-10">
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Pasangan Mempelai</p>
-                <h2 className="font-display text-5xl text-primary">{COUPLE_NAMES.short} </h2>
+                <h2 className="font-display text-5xl text-primary">Mempelai </h2>
               </div>
 
               <div className="flex flex-col items-center mb-12">

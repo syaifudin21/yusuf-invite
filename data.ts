@@ -9,14 +9,14 @@ export const COUPLE_DATA = {
   bride: {
     name: "Lifiatus shalekha",
     short: "Lifia",
-    image: "https://picsum.photos/seed/bride/600/800",
+    image: "/wanita.webp",
     instagram: "@lifiash57",
     parents: "Putri dari Bapak Darno ( alm ) & Ibu Marfuah ( alm )",
   },
   groom: {
     name: "Moh. Yusuf Efendi",
     short: "Yusuf",
-    image: "https://picsum.photos/seed/groom/600/800",
+    image: "/pria.webp",
     instagram: "@yusuf_efendi_46",
     parents: "Putra dari Bapak H khasan & Ibu Hj Masriah",
   }
