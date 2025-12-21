@@ -25,7 +25,10 @@ const App: React.FC = () => {
   const [currentStatus, setCurrentStatus] = useState<'Going' | 'Maybe' | 'Not Going'>('Going');
   const [toName, setToName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   // Read URL parameter 'to'
   useEffect(() => {
@@ -46,6 +49,40 @@ const App: React.FC = () => {
       setIsPlaying(!isPlaying);
     }
   };
+
+  const toggleAutoScroll = () => {
+    setIsAutoScrolling(prev => !prev);
+  };
+
+  // Auto-scrolling logic
+  useEffect(() => {
+    const contentElement = contentRef.current;
+
+    if (isAutoScrolling && contentElement) {
+      contentElement.style.scrollBehavior = 'auto';
+
+      const scrollStep = () => {
+        const maxScroll = contentElement.scrollHeight - contentElement.clientHeight;
+        if (contentElement.scrollTop >= maxScroll - 1) {
+          setIsAutoScrolling(false);
+          return;
+        }
+        contentElement.scrollTop += 1;
+        animationFrameRef.current = requestAnimationFrame(scrollStep);
+      };
+      animationFrameRef.current = requestAnimationFrame(scrollStep);
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      if (contentElement) {
+        contentElement.style.scrollBehavior = 'smooth';
+      }
+    };
+  }, [isAutoScrolling]);
 
   // Countdown logic
   useEffect(() => {
@@ -126,7 +163,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className={`w-full lg:w-1/2 h-screen overflow-y-auto no-scrollbar relative transition-all duration-1000 bg-bg-light ${!isOpen ? 'overflow-hidden' : ''}`}>
+      <div ref={contentRef} className={`w-full lg:w-1/2 h-screen overflow-y-auto no-scrollbar relative transition-all duration-1000 bg-bg-light ${!isOpen ? 'overflow-hidden' : ''}`}>
 
         {/* Cover Screen */}
         <div className={`absolute inset-0 z-50 bg-[#cce3f3] flex flex-col transition-transform duration-1000 ease-in-out ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
@@ -144,13 +181,15 @@ const App: React.FC = () => {
             <button
               onClick={() => {
                 setIsOpen(true);
-                // Auto-play music when invitation is opened
+                // Auto-play music and start auto scrolling when invitation is opened
                 setTimeout(() => {
                   if (audioRef.current) {
                     audioRef.current.play().catch(e => console.log("Auto-play failed:", e));
                     setIsPlaying(true);
                   }
-                }, 100); // Small delay to ensure DOM is updated
+                  // Start auto scrolling automatically
+                  setIsAutoScrolling(true);
+                }, 500); // Increased delay to ensure DOM is fully updated
               }}
               className="px-10 py-4 bg-primary text-white rounded-full font-bold shadow-lg hover:bg-blue-800 transition transform hover:scale-105 flex items-center justify-center mx-auto"
             >
@@ -168,6 +207,14 @@ const App: React.FC = () => {
               className="fixed top-6 right-6 z-40 w-12 h-12 bg-white/80 backdrop-blur rounded-full shadow-lg flex items-center justify-center text-primary animate-slow-spin"
             >
               <span className="material-icons-round">{isPlaying ? 'pause' : 'music_note'}</span>
+            </button>
+
+            {/* Auto Scroll Control */}
+            <button
+              onClick={toggleAutoScroll}
+              className="fixed top-6 right-20 z-40 w-12 h-12 bg-white/80 backdrop-blur rounded-full shadow-lg flex items-center justify-center text-primary"
+            >
+              <span className="material-icons-round">{isAutoScrolling ? 'pause' : 'swap_vert'}</span>
             </button>
 
             {/* Hidden Audio Element */}
@@ -212,9 +259,19 @@ const App: React.FC = () => {
               <div className="max-w-md mx-auto relative z-10">
                 <span className="text-5xl text-primary/20 font-serif leading-none">“</span>
                 <p className="font-serif italic text-lg text-gray-600 mb-6 leading-relaxed">
-                  The best love is the kind that awakens the soul and makes us reach for more, that plants a fire in our hearts and brings peace to our minds.
+
+                  ﷽
+
                 </p>
-                <p className="text-xs font-bold text-primary uppercase tracking-widest">— Nicholas Sparks</p>
+                <p className="mb-4">
+                  وَمِنْ ءَايَٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِى ذَٰلِكَ لَءَايَٰتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
+                </p>
+                <p className="mb-4">
+                  Artinya: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda bagi kaum yang berfikir."
+                </p>
+
+
+                <p className="text-xs font-bold text-primary uppercase tracking-widest">— Ar Rum Ayat 21</p>
               </div>
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-50 rounded-full opacity-50"></div>
             </section>
@@ -222,8 +279,8 @@ const App: React.FC = () => {
             {/* Couple Section */}
             <section id="couple" className="py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
               <div className="text-center mb-16">
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">The Couple</p>
-                <h2 className="font-display text-5xl text-primary">{COUPLE_NAMES.long}</h2>
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2"></p>
+                <h2 className="font-display text-5xl text-primary">Mempelai </h2>
               </div>
 
               <div className="flex flex-col items-center mb-12">
@@ -300,16 +357,18 @@ const App: React.FC = () => {
             </section>
 
             {/* Gallery Section */}
-            <section id="gallery" className="py-20 px-6">
-              <h2 className="font-display text-5xl text-center text-primary mb-12">Gallery</h2>
-              <div className="grid grid-cols-2 gap-4">
-                {GALLERY_IMAGES.map((img, i) => (
-                  <div key={i} className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition duration-500">
-                    <img src={img} alt="Gallery" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            </section>
+            {GALLERY_IMAGES && GALLERY_IMAGES.length > 0 && (
+              <section id="gallery" className="py-20 px-6">
+                <h2 className="font-display text-5xl text-center text-primary mb-12">Gallery</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {GALLERY_IMAGES.map((img, i) => (
+                    <div key={i} className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition duration-500">
+                      <img src={img} alt="Gallery" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Gift Section */}
             <section id="gift" className="py-20 px-8 bg-white">
@@ -422,16 +481,18 @@ const App: React.FC = () => {
                 { icon: 'event', label: 'Event', target: 'event' },
                 { icon: 'image', label: 'Gallery', target: 'gallery' },
                 { icon: 'chat_bubble', label: 'Wishes', target: 'wishes' }
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={`#${item.target}`}
-                  className="flex flex-col items-center text-gray-400 hover:text-primary transition"
-                >
-                  <span className="material-icons-round">{item.icon}</span>
-                  <span className="text-[10px] font-bold">{item.label}</span>
-                </a>
-              ))}
+              ]
+                .filter(item => item.target !== 'gallery' || (GALLERY_IMAGES && GALLERY_IMAGES.length > 0))
+                .map((item) => (
+                  <a
+                    key={item.label}
+                    href={`#${item.target}`}
+                    className="flex flex-col items-center text-gray-400 hover:text-primary transition"
+                  >
+                    <span className="material-icons-round">{item.icon}</span>
+                    <span className="text-[10px] font-bold">{item.label}</span>
+                  </a>
+                ))}
             </div>
           </nav>
         )}
