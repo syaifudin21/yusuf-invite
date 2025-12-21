@@ -3,6 +3,7 @@ export const WEDDING_DATE = new Date('2026-03-22T10:00:00');
 export const COUPLE_NAMES = {
   short: "Lifia & Yusuf",
   long: "Lifiatus shalekha & Moh. Yusuf Efendi",
+  song: '/one-peace.mp3'
 };
 
 export const COUPLE_DATA = {

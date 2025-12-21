@@ -27,9 +27,12 @@ const App: React.FC = () => {
   const [toName, setToName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  const [isManuallyPaused, setIsManuallyPaused] = useState(false); // NEW
   const audioRef = useRef<HTMLAudioElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const manualPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isProgrammaticScrollRef = useRef(false); // NEW // NEW
 
   // Read URL parameter 'to'
   useEffect(() => {
@@ -64,7 +67,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const contentElement = contentRef.current;
 
-    if (isAutoScrolling && contentElement) {
+    if (isAutoScrolling && contentElement && !isManuallyPaused) {
       contentElement.style.scrollBehavior = 'auto';
 
       const scrollStep = () => {
@@ -73,6 +76,7 @@ const App: React.FC = () => {
           setIsAutoScrolling(false);
           return;
         }
+        isProgrammaticScrollRef.current = true; // Set flag just before scrolling
         contentElement.scrollTop += 1;
         animationFrameRef.current = requestAnimationFrame(scrollStep);
       };
@@ -87,8 +91,47 @@ const App: React.FC = () => {
       if (contentElement) {
         contentElement.style.scrollBehavior = 'smooth';
       }
+      isProgrammaticScrollRef.current = false; // Reset flag on cleanup
     };
-  }, [isAutoScrolling]);
+  }, [isAutoScrolling, isManuallyPaused]); // Added isManuallyPaused to dependencies
+
+  // Handle manual scroll to pause auto-scroll
+  useEffect(() => {
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    const handleScroll = () => {
+      if (isProgrammaticScrollRef.current) {
+        // This scroll event was triggered by our auto-scroll. Reset the flag and ignore.
+        isProgrammaticScrollRef.current = false;
+        return;
+      }
+
+      // If we reach here, it's a manual scroll.
+      if (isAutoScrolling) {
+        setIsManuallyPaused(true);
+
+        if (manualPauseTimeoutRef.current) {
+          clearTimeout(manualPauseTimeoutRef.current);
+        }
+
+        manualPauseTimeoutRef.current = setTimeout(() => {
+          setIsManuallyPaused(false);
+          manualPauseTimeoutRef.current = null;
+        }, 10000); // 10 seconds
+      }
+    };
+
+    contentElement.addEventListener('scroll', handleScroll);
+
+    return () => {
+      contentElement.removeEventListener('scroll', handleScroll);
+      if (manualPauseTimeoutRef.current) {
+        clearTimeout(manualPauseTimeoutRef.current);
+        manualPauseTimeoutRef.current = null;
+      }
+    };
+  }, [isAutoScrolling, isManuallyPaused]); // Depend on isAutoScrolling to re-create handler with latest state. Add isManuallyPaused for consistency.
 
   // Countdown logic
   useEffect(() => {
@@ -233,7 +276,7 @@ const App: React.FC = () => {
                 setIsPlaying(false);
               }}
             >
-              <source src="https://assets.satumomen.com/musics/prewed-cusi-didik-u3siiooi81e.mp3" type="audio/mpeg" />
+              <source src={COUPLE_NAMES.song} type="audio/mpeg" />
               Browser Anda tidak mendukung elemen audio.
             </audio>
 
