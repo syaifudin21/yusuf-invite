@@ -1,4 +1,4 @@
-export const WEDDING_DATE = new Date('2025-12-31T08:00:00');
+export const WEDDING_DATE = new Date('2026-03-22T10:00:00');
 
 export const COUPLE_NAMES = {
   short: "Lifia & Yusuf",
@@ -8,12 +8,14 @@ export const COUPLE_NAMES = {
 export const COUPLE_DATA = {
   bride: {
     name: "Lifiatus shalekha",
+    short: "Lifia",
     image: "https://picsum.photos/seed/bride/600/800",
     instagram: "@lifiash57",
     parents: "Putri dari Bapak Darno ( alm ) & Ibu Marfuah ( alm )",
   },
   groom: {
     name: "Moh. Yusuf Efendi",
+    short: "Yusuf",
     image: "https://picsum.photos/seed/groom/600/800",
     instagram: "@yusuf_efendi_46",
     parents: "Putra dari Bapak H khasan & Ibu Hj Masriah",
@@ -29,16 +31,16 @@ export const GALLERY_IMAGES = [
 
 export const EVENT_DATA = {
   ceremony: {
-    title: "Wedding Ceremony",
-    date: "Wednesday, 22 Maret 2026",
-    time: "08:00 - 10:00 AM",
+    title: "Akad Nikah",
+    date: "Rabu, 22 Maret 2026",
+    time: "08:00 - 10:00 WIB",
     locationName: "Rumah mempelai putri",
     locationAddress: "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
   reception: {
-    title: "Reception",
-    date: "Wednesday, 22 Maret 2026",
-    time: "12:00 - 02:00 PM",
+    title: "Resepsi",
+    date: "Rabu, 22 Maret 2026",
+    time: "12:00 - 14:00 WIB",
     locationName: "Rumah saudari lifia",
     locationAddress: "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
