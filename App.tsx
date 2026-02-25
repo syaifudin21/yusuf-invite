@@ -4,6 +4,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { WEDDING_DATE, COUPLE_NAMES, COUPLE_DATA, GALLERY_IMAGES, EVENT_DATA, GIFT_DATA } from './data';
 import { CountdownTime, Wish } from './types';
 import metadata from './metadata.json';
+import FlowerBorder from './src/components/FlowerBorder';
+import { useScrollAnimation } from './src/hooks/useScrollAnimation';
 
 // Setup Gemini AI
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
@@ -26,13 +28,15 @@ const App: React.FC = () => {
   const [currentStatus, setCurrentStatus] = useState<'Going' | 'Maybe' | 'Not Going'>('Going');
   const [toName, setToName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-  const [isManuallyPaused, setIsManuallyPaused] = useState(false); // NEW
   const audioRef = useRef<HTMLAudioElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const manualPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isProgrammaticScrollRef = useRef(false); // NEW // NEW
+
+  // Scroll animation refs
+  const quoteSectionRef = useScrollAnimation();
+  const coupleSectionRef = useScrollAnimation();
+  const eventSectionRef = useScrollAnimation();
+  const gallerySectionRef = useScrollAnimation();
+  const giftSectionRef = useScrollAnimation();
+  const wishesSectionRef = useScrollAnimation();
 
   // Read URL parameter 'to'
   useEffect(() => {
@@ -58,80 +62,6 @@ const App: React.FC = () => {
       setIsPlaying(!isPlaying);
     }
   };
-
-  const toggleAutoScroll = () => {
-    setIsAutoScrolling(prev => !prev);
-  };
-
-  // Auto-scrolling logic
-  useEffect(() => {
-    const contentElement = contentRef.current;
-
-    if (isAutoScrolling && contentElement && !isManuallyPaused) {
-      contentElement.style.scrollBehavior = 'auto';
-
-      const scrollStep = () => {
-        const maxScroll = contentElement.scrollHeight - contentElement.clientHeight;
-        if (contentElement.scrollTop >= maxScroll - 1) {
-          setIsAutoScrolling(false);
-          return;
-        }
-        isProgrammaticScrollRef.current = true; // Set flag just before scrolling
-        contentElement.scrollTop += 1;
-        animationFrameRef.current = requestAnimationFrame(scrollStep);
-      };
-      animationFrameRef.current = requestAnimationFrame(scrollStep);
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-      if (contentElement) {
-        contentElement.style.scrollBehavior = 'smooth';
-      }
-      isProgrammaticScrollRef.current = false; // Reset flag on cleanup
-    };
-  }, [isAutoScrolling, isManuallyPaused]); // Added isManuallyPaused to dependencies
-
-  // Handle manual scroll to pause auto-scroll
-  useEffect(() => {
-    const contentElement = contentRef.current;
-    if (!contentElement) return;
-
-    const handleScroll = () => {
-      if (isProgrammaticScrollRef.current) {
-        // This scroll event was triggered by our auto-scroll. Reset the flag and ignore.
-        isProgrammaticScrollRef.current = false;
-        return;
-      }
-
-      // If we reach here, it's a manual scroll.
-      if (isAutoScrolling) {
-        setIsManuallyPaused(true);
-
-        if (manualPauseTimeoutRef.current) {
-          clearTimeout(manualPauseTimeoutRef.current);
-        }
-
-        manualPauseTimeoutRef.current = setTimeout(() => {
-          setIsManuallyPaused(false);
-          manualPauseTimeoutRef.current = null;
-        }, 10000); // 10 seconds
-      }
-    };
-
-    contentElement.addEventListener('scroll', handleScroll);
-
-    return () => {
-      contentElement.removeEventListener('scroll', handleScroll);
-      if (manualPauseTimeoutRef.current) {
-        clearTimeout(manualPauseTimeoutRef.current);
-        manualPauseTimeoutRef.current = null;
-      }
-    };
-  }, [isAutoScrolling, isManuallyPaused]); // Depend on isAutoScrolling to re-create handler with latest state. Add isManuallyPaused for consistency.
 
   // Countdown logic
   useEffect(() => {
@@ -197,6 +127,9 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen font-sans overflow-hidden">
+      {/* Animated Flower Border */}
+      <FlowerBorder />
+
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex w-1/2 bg-bg-dark text-white p-20 flex-col justify-center items-center relative overflow-hidden fixed h-screen left-0 top-0">
         <div className="absolute top-10 left-10 w-2 h-2 bg-blue-300 rounded-full opacity-50"></div>
@@ -212,7 +145,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div ref={contentRef} className={`w-full lg:w-1/2 h-screen overflow-y-auto no-scrollbar relative transition-all duration-1000 bg-bg-light ${!isOpen ? 'overflow-hidden' : ''}`}>
+      <div className={`w-full lg:w-1/2 h-screen overflow-y-auto no-scrollbar relative transition-all duration-1000 bg-bg-light ${!isOpen ? 'overflow-hidden' : ''}`}>
 
         {/* Cover Screen */}
         <div className={`absolute inset-0 z-50 bg-[#cce3f3] flex flex-col transition-transform duration-1000 ease-in-out ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
@@ -230,15 +163,13 @@ const App: React.FC = () => {
             <button
               onClick={() => {
                 setIsOpen(true);
-                // Auto-play music and start auto scrolling when invitation is opened
+                // Auto-play music when invitation is opened
                 setTimeout(() => {
                   if (audioRef.current) {
                     audioRef.current.play().catch(e => console.log("Auto-play failed:", e));
                     setIsPlaying(true);
                   }
-                  // Start auto scrolling automatically
-                  setIsAutoScrolling(true);
-                }, 500); // Increased delay to ensure DOM is fully updated
+                }, 500);
               }}
               className="px-10 py-4 bg-primary text-white rounded-full font-bold shadow-lg hover:bg-blue-800 transition transform hover:scale-105 flex items-center justify-center mx-auto"
             >
@@ -256,14 +187,6 @@ const App: React.FC = () => {
               className={`fixed top-6 right-6 z-40 w-12 h-12 bg-white/80 backdrop-blur rounded-full shadow-lg flex items-center justify-center text-primary ${isPlaying ? 'animate-slow-spin' : ''}`}
             >
               <span className="material-icons-round">music_note</span>
-            </button>
-
-            {/* Auto Scroll Control */}
-            <button
-              onClick={toggleAutoScroll}
-              className={`fixed top-6 right-20 z-40 w-12 h-12 bg-white/80 backdrop-blur rounded-full shadow-lg flex items-center justify-center text-primary ${isAutoScrolling ? 'animate-slow-spin' : ''}`}
-            >
-              <span className="material-icons-round">arrow_downward</span>
             </button>
 
             {/* Hidden Audio Element */}
@@ -304,7 +227,7 @@ const App: React.FC = () => {
             </section>
 
             {/* Quote Section */}
-            <section className="py-20 px-10 text-center bg-white relative overflow-hidden">
+            <section ref={quoteSectionRef} className="animate-spawn py-20 px-10 text-center bg-white relative overflow-hidden">
               <div className="max-w-md mx-auto relative z-10">
                 <span className="text-5xl text-primary/20 font-serif leading-none">“</span>
                 <p className="font-serif italic text-lg text-gray-600 mb-6 leading-relaxed">
@@ -326,15 +249,15 @@ const App: React.FC = () => {
             </section>
 
             {/* Couple Section */}
-            <section id="couple" className="relative overflow-hidden py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
+            <section ref={coupleSectionRef} id="couple" className="animate-spawn relative overflow-hidden py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
               <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -top-10 -right-10 w-64 h-64 opacity-30 transform rotate-180" />
               <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -bottom-10 -left-10 w-64 h-64 opacity-30" />
-              <div className="text-center mb-16 relative z-10">
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Pasangan Mempelai</p>
-                <h2 className="font-display text-5xl text-primary">Mempelai </h2>
+              <div className="text-center mb-16 relative z-10 animate-spawn">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Pasangan</p>
+                <h2 className="font-display text-5xl text-primary animate-spawn-delay-1">Kedua Mempelai </h2>
               </div>
 
-              <div className="flex flex-col items-center mb-12">
+              <div className="flex flex-col items-center mb-12 animate-spawn animate-spawn-delay-2">
                 <div className="w-48 h-48 rounded-full overflow-hidden border-8 border-white shadow-xl mb-6 transform hover:rotate-2 transition">
                   <img src={COUPLE_DATA.bride.image} alt="Mempelai Wanita" className="w-full h-full object-cover" />
                 </div>
@@ -348,9 +271,9 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-center font-display text-6xl text-secondary my-12 opacity-50">&</div>
+              <div className="text-center font-display text-6xl text-secondary my-12 opacity-50 animate-spawn animate-spawn-delay-2">&</div>
 
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center animate-spawn animate-spawn-delay-3">
                 <div className="w-48 h-48 rounded-full overflow-hidden border-8 border-white shadow-xl mb-6 transform hover:-rotate-2 transition">
                   <img src={COUPLE_DATA.groom.image} alt="Mempelai Pria" className="w-full h-full object-cover" />
                 </div>
@@ -366,14 +289,14 @@ const App: React.FC = () => {
             </section>
 
             {/* Event Section */}
-            <section id="event" className="py-20 px-8">
-              <div className="text-center mb-12">
-                <h2 className="font-display text-5xl text-primary mb-4">Detail Acara</h2>
-                <p className="text-sm text-gray-500 max-w-lg mx-auto">Dengan segala kerendahan hati, kami bermaksud mengundang Bapak/Ibu/Saudara/i dalam acara pernikahan kami yang akan diselenggarakan pada:</p>
+            <section ref={eventSectionRef} id="event" className="animate-spawn py-20 px-8">
+              <div className="text-center mb-12 animate-spawn">
+                <h2 className="font-display text-5xl text-primary mb-4 animate-spawn-delay-1">Detail Acara</h2>
+                <p className="text-sm text-gray-500 max-w-lg mx-auto animate-spawn-delay-2">Dengan segala kerendahan hati, kami bermaksud mengundang Bapak/Ibu/Saudara/i dalam acara pernikahan kami yang akan diselenggarakan pada:</p>
               </div>
 
               <div className="space-y-8">
-                <div className="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-primary relative overflow-hidden">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-primary relative overflow-hidden animate-spawn animate-spawn-delay-2">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <span className="material-icons-round text-8xl">mosque</span>
                   </div>
@@ -389,7 +312,7 @@ const App: React.FC = () => {
                   </a>
                 </div>
 
-                <div className="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-primary relative overflow-hidden">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-primary relative overflow-hidden animate-spawn animate-spawn-delay-3">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <span className="material-icons-round text-8xl">restaurant</span>
                   </div>
@@ -409,11 +332,11 @@ const App: React.FC = () => {
 
             {/* Gallery Section */}
             {GALLERY_IMAGES && GALLERY_IMAGES.length > 0 && (
-              <section id="gallery" className="py-20 px-6">
-                <h2 className="font-display text-5xl text-center text-primary mb-12">Galeri</h2>
+              <section ref={gallerySectionRef} id="gallery" className="animate-spawn py-20 px-6">
+                <h2 className="font-display text-5xl text-center text-primary mb-12 animate-spawn">Galeri</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {GALLERY_IMAGES.map((img, i) => (
-                    <div key={i} className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition duration-500">
+                    <div key={i} className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition duration-500 animate-spawn" style={{ transitionDelay: `${0.1 + i * 0.1}s` }}>
                       <img src={img} alt={`Galeri ${i + 1}`} className="w-full h-full object-cover" />
                     </div>
                   ))}
@@ -422,15 +345,15 @@ const App: React.FC = () => {
             )}
 
             {/* Gift Section */}
-            <section id="gift" className="py-20 px-8 bg-white">
-              <div className="text-center mb-12">
-                <h2 className="font-display text-5xl text-primary mb-4">Hadiah Pernikahan</h2>
-                <p className="text-xs text-gray-500 max-w-xs mx-auto">Kehadiran Anda adalah anugerah terindah, namun jika Anda ingin memberikan tanda kasih, Anda dapat menggunakan salah satu dari berikut:</p>
+            <section ref={giftSectionRef} id="gift" className="animate-spawn py-20 px-8 bg-white">
+              <div className="text-center mb-12 animate-spawn">
+                <h2 className="font-display text-5xl text-primary mb-4 animate-spawn-delay-1">Hadiah Pernikahan</h2>
+                <p className="text-xs text-gray-500 max-w-xs mx-auto animate-spawn-delay-2">Kehadiran Anda adalah anugerah terindah, namun jika Anda ingin memberikan tanda kasih, Anda dapat menggunakan salah satu dari berikut:</p>
               </div>
 
               <div className="space-y-4">
                 {GIFT_DATA.map((bank, index) => (
-                  <div key={index} className="p-6 bg-bg-light rounded-2xl border border-gray-100 shadow-sm text-center">
+                  <div key={index} className="p-6 bg-bg-light rounded-2xl border border-gray-100 shadow-sm text-center animate-spawn" style={{ transitionDelay: `${0.1 + index * 0.1}s` }}>
                     <p className={`font-bold ${bank.color} mb-2`}>{bank.bankName}</p>
                     <p className="text-xs text-gray-400">Atas Nama</p>
                     <p className="font-bold text-gray-800 mb-2">{bank.accountName}</p>
@@ -446,10 +369,10 @@ const App: React.FC = () => {
             </section>
 
             {/* Wishes Section */}
-            <section id="wishes" className="py-20 px-8 bg-bg-light rounded-t-[3rem] -mt-10 relative z-10">
-              <h2 className="font-display text-5xl text-center text-primary mb-12">Ucapan & Doa</h2>
+            <section ref={wishesSectionRef} id="wishes" className="animate-spawn py-20 px-8 bg-bg-light rounded-t-[3rem] -mt-10 relative z-10">
+              <h2 className="font-display text-5xl text-center text-primary mb-12 animate-spawn">Ucapan & Doa</h2>
 
-              <form onSubmit={handleSubmitWish} className="bg-white p-6 rounded-3xl shadow-xl mb-12 border border-blue-50">
+              <form onSubmit={handleSubmitWish} className="bg-white p-6 rounded-3xl shadow-xl mb-12 border border-blue-50 animate-spawn animate-spawn-delay-1">
                 <input
                   type="text"
                   placeholder="Nama Anda"

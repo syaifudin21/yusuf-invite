@@ -1,9 +1,9 @@
-export const WEDDING_DATE = new Date('2026-03-22T10:00:00');
+export const WEDDING_DATE = new Date("2026-03-22T10:00:00");
 
 export const COUPLE_NAMES = {
   short: "Lifia & Yusuf",
   long: "Lifiatus shalekha & Moh. Yusuf Efendi",
-  song: '/one-peace.mp3'
+  song: "/andmesh.mp3",
 };
 
 export const COUPLE_DATA = {
@@ -12,7 +12,7 @@ export const COUPLE_DATA = {
     short: "Lifia",
     image: "/wanita.webp",
     instagram: "@lifiash57",
-    parents: "Putri dari Bapak Darno ( alm ) & Ibu Marfuah ( alm )",
+    parents: "Putri dari Bapak Darno (alm) & Ibu Marfuah (alm)",
   },
   groom: {
     name: "Moh. Yusuf Efendi",
@@ -20,7 +20,7 @@ export const COUPLE_DATA = {
     image: "/pria.webp",
     instagram: "@yusuf_efendi_46",
     parents: "Putra dari Bapak H khasan & Ibu Hj Masriah",
-  }
+  },
 };
 
 export const GALLERY_IMAGES = [
@@ -36,14 +36,16 @@ export const EVENT_DATA = {
     date: "Rabu, 22 Maret 2026",
     time: "08:00 - 10:00 WIB",
     locationName: "Rumah mempelai putri",
-    locationAddress: "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
+    locationAddress:
+      "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
   reception: {
     title: "Resepsi",
     date: "Rabu, 22 Maret 2026",
     time: "12:00 - 14:00 WIB",
-    locationName: "Rumah saudari lifia",
-    locationAddress: "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
+    locationName: "Rumah mempelai putri",
+    locationAddress:
+      "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
 };
 
@@ -52,6 +54,6 @@ export const GIFT_DATA = [
     bankName: "BCA",
     accountName: "Lifiatus Shalekha",
     accountNumber: "3301115588",
-    color: "text-red-600"
-  }
+    color: "text-red-600",
+  },
 ];
