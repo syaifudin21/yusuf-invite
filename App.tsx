@@ -13,21 +13,16 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 const App: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [wishes, setWishes] = useState<Wish[]>([
-    {
-      id: '1',
-      name: 'Laura Andini',
-      message: 'Happy Wedding Fulan! ❤️❤️❤️',
-      status: 'Going',
-      timestamp: new Date()
-    }
-  ]);
+  const [wishes, setWishes] = useState<Wish[]>([]);
+  const [isLoadingWishes, setIsLoadingWishes] = useState(true);
+  const [isSubmittingWish, setIsSubmittingWish] = useState(false);
   const [isGeneratingWish, setIsGeneratingWish] = useState(false);
   const [currentName, setCurrentName] = useState('');
   const [currentMessage, setCurrentMessage] = useState('');
   const [currentStatus, setCurrentStatus] = useState<'Going' | 'Maybe' | 'Not Going'>('Going');
   const [toName, setToName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [lastAddedWishId, setLastAddedWishId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Scroll animation refs - only enable after invitation is opened
@@ -50,6 +45,34 @@ const App: React.FC = () => {
   // Set document title from metadata
   useEffect(() => {
     document.title = metadata.title;
+  }, []);
+
+  // Fetch wishes from Google Sheets on mount
+  useEffect(() => {
+    const fetchWishes = async () => {
+      try {
+        const response = await fetch('/api/get-wishes');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.wishes && Array.isArray(data.wishes)) {
+            const formattedWishes = data.wishes.map((wish: any) => ({
+              id: wish.id,
+              name: wish.name,
+              message: wish.message,
+              status: wish.status,
+              timestamp: new Date(wish.timestamp)
+            }));
+            setWishes(formattedWishes);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching wishes:', error);
+      } finally {
+        setIsLoadingWishes(false);
+      }
+    };
+
+    fetchWishes();
   }, []);
 
   const toggleMusic = () => {
@@ -108,21 +131,61 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSubmitWish = (e: React.FormEvent) => {
+  const handleSubmitWish = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentName || !currentMessage) return;
+    if (!currentName || !currentMessage) {
+      alert("Mohon isi nama dan ucapan!");
+      return;
+    }
 
-    const newWish: Wish = {
-      id: Date.now().toString(),
-      name: currentName,
-      message: currentMessage,
-      status: currentStatus,
-      timestamp: new Date()
-    };
+    setIsSubmittingWish(true);
+    try {
+      // Send to API
+      const response = await fetch('/api/submit-wish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: currentName,
+          message: currentMessage,
+          status: currentStatus,
+          timestamp: new Date().toISOString()
+        }),
+      });
 
-    setWishes([newWish, ...wishes]);
-    setCurrentName('');
-    setCurrentMessage('');
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Add to local state
+        const newWish: Wish = {
+          id: Date.now().toString(),
+          name: currentName,
+          message: currentMessage,
+          status: currentStatus,
+          timestamp: new Date()
+        };
+
+        setWishes([newWish, ...wishes]);
+        setCurrentName('');
+        setCurrentMessage('');
+        
+        // Set animation for new wish
+        setLastAddedWishId(newWish.id);
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          setLastAddedWishId(null);
+        }, 2000);
+      } else {
+        throw new Error(result.error || 'Gagal menyimpan ucapan');
+      }
+    } catch (error) {
+      console.error('Error submitting wish:', error);
+      alert("Maaf, terjadi kesalahan saat mengirim ucapan. Silakan coba lagi.");
+    } finally {
+      setIsSubmittingWish(false);
+    }
   };
 
   return (
@@ -408,29 +471,62 @@ const App: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                <button className="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">
-                  Kirim Ucapan
+                <button
+                  type="submit"
+                  disabled={isSubmittingWish}
+                  className={`w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 ${
+                    isSubmittingWish ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isSubmittingWish ? (
+                    <>
+                      <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Mengirim...</span>
+                    </>
+                  ) : (
+                    <span>Kirim Ucapan</span>
+                  )}
                 </button>
               </form>
 
-              <div className="space-y-6 max-h-[500px] overflow-y-auto no-scrollbar pr-2">
-                {wishes.map((wish) => (
-                  <div key={wish.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-gray-800">{wish.name}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${wish.status === 'Going' ? 'bg-green-100 text-green-600' :
-                        wish.status === 'Maybe' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'
-                        }`}>
-                        {wish.status === 'Going' ? 'Hadir' : wish.status === 'Maybe' ? 'Mungkin Hadir' : 'Tidak Bisa Hadir'}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 leading-relaxed italic">"{wish.message}"</p>
-                    <p className="text-[10px] text-gray-400 mt-2 text-right">
-                      {new Date(wish.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {/* Loading State */}
+              {isLoadingWishes && (
+                <div className="text-center py-12 animate-spawn">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                  <p className="mt-4 text-gray-500">Memuat ucapan...</p>
+                </div>
+              )}
+
+              {/* Wishes List */}
+              {!isLoadingWishes && (
+                <div className="space-y-6 max-h-[500px] overflow-y-auto no-scrollbar pr-2">
+                  {wishes.length === 0 ? (
+                    <p className="text-center text-gray-500 py-8">Belum ada ucapan. Jadilah yang pertama!</p>
+                  ) : (
+                    wishes.map((wish) => (
+                      <div
+                        key={wish.id}
+                        className={`bg-white p-4 rounded-2xl shadow-sm border border-gray-100 ${
+                          lastAddedWishId === wish.id ? 'wish-new-added' : ''
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-bold text-gray-800">{wish.name}</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${wish.status === 'Going' ? 'bg-green-100 text-green-600' :
+                            wish.status === 'Maybe' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'
+                            }`}>
+                            {wish.status === 'Going' ? 'Hadir' : wish.status === 'Maybe' ? 'Mungkin Hadir' : 'Tidak Bisa Hadir'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed italic">"{wish.message}"</p>
+                        <p className="text-[10px] text-gray-400 mt-2 text-right">
+                          {new Date(wish.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </section>
 
             {/* Footer */}
