@@ -171,9 +171,10 @@ const App: React.FC = () => {
                   }
                 }, 500);
               }}
-              className="px-10 py-4 bg-primary text-white rounded-full font-bold shadow-lg hover:bg-blue-800 transition transform hover:scale-105 flex items-center justify-center mx-auto"
+              className="px-10 py-4 bg-primary text-white rounded-full font-bold shadow-lg hover:bg-blue-800 transition transform hover:scale-105 inline-flex items-center justify-center mx-auto"
             >
-              <span className="material-icons-round mr-2">drafts</span> Buka Undangan
+              <span className="material-icons-round mr-2">drafts</span>
+              <span>Buka Undangan</span>
             </button>
           </div>
         </div>
@@ -204,12 +205,12 @@ const App: React.FC = () => {
             </audio>
 
             {/* Hero Section */}
-            <section id="home" className="h-screen relative flex items-end">
-              <img src="https://picsum.photos/seed/hero/800/1200" alt="Hero" className="absolute inset-0 w-full h-full object-cover" />
+            <section id="home" className="h-screen relative flex items-center">
+              <img src="/background-1.jpeg" alt="Hero" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
-              <div className="relative z-10 w-full p-8 pb-24 text-center">
-                <h1 className="font-display text-6xl text-white mb-4">{COUPLE_NAMES.short}</h1>
-                <p className="font-bold text-white mb-8">{EVENT_DATA.ceremony.date}</p>
+              <div className="relative z-10 w-full p-8 text-center">
+                <h1 className="font-display text-6xl text-blue mb-4">{COUPLE_NAMES.short}</h1>
+                <p className="font-bold text-blue mb-8">{EVENT_DATA.ceremony.date}</p>
                 <div className="flex justify-center space-x-4">
                   {[
                     { label: 'Hari', value: timeLeft.days },
@@ -307,8 +308,9 @@ const App: React.FC = () => {
                     <p className="font-bold text-lg text-gray-800">{EVENT_DATA.ceremony.locationName}</p>
                     <p className="text-sm text-gray-500">{EVENT_DATA.ceremony.locationAddress}</p>
                   </div>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT_DATA.ceremony.locationAddress)}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center space-x-2 transition hover:bg-blue-800">
-                    <span className="material-icons-round text-sm">near_me</span> <span>Lihat di Google Maps</span>
+                  <a href={EVENT_DATA.ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-primary text-white rounded-xl font-bold transition hover:bg-blue-800 inline-flex items-center justify-center">
+                    <span className="material-icons-round text-sm mr-2">near_me</span>
+                    <span>Lihat di Google Maps</span>
                   </a>
                 </div>
 
@@ -323,8 +325,9 @@ const App: React.FC = () => {
                     <p className="font-bold text-lg text-gray-800">{EVENT_DATA.reception.locationName}</p>
                     <p className="text-sm text-gray-500">{EVENT_DATA.reception.locationAddress}</p>
                   </div>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT_DATA.reception.locationAddress)}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center space-x-2 transition hover:bg-blue-800">
-                    <span className="material-icons-round text-sm">near_me</span> <span>Lihat di Google Maps</span>
+                  <a href={EVENT_DATA.reception.locationLink} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-primary text-white rounded-xl font-bold transition hover:bg-blue-800 inline-flex items-center justify-center">
+                    <span className="material-icons-round text-sm mr-2">near_me</span>
+                    <span>Lihat di Google Maps</span>
                   </a>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-export const WEDDING_DATE = new Date("2026-03-22T10:00:00");
+export const WEDDING_DATE = new Date("2026-03-22T08:00:00");
 
 export const COUPLE_NAMES = {
   short: "Lifia & Yusuf",
@@ -36,14 +36,16 @@ export const EVENT_DATA = {
     date: "Rabu, 22 Maret 2026",
     time: "08:00 - 10:00 WIB",
     locationName: "Rumah mempelai putri",
+    locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
       "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
   reception: {
     title: "Resepsi",
     date: "Rabu, 22 Maret 2026",
-    time: "12:00 - 14:00 WIB",
+    time: "10:00 - 12:00 WIB",
     locationName: "Rumah mempelai putri",
+    locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
       "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
   },
