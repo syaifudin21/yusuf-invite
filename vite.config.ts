@@ -44,6 +44,13 @@ export default defineConfig(({ mode }) => {
         {
           name: 'api-middleware',
           configureServer(server) {
+            // Allowed origins untuk development
+            const ALLOWED_ORIGINS = [
+              'http://localhost:3000',
+              'http://localhost:5173',
+              env.ALLOWED_ORIGIN
+            ].filter(Boolean);
+
             server.middlewares.use('/api/submit-wish', async (req: IncomingMessage, res: ServerResponse) => {
               // Handle CORS preflight
               if (req.method === 'OPTIONS') {
@@ -55,6 +62,13 @@ export default defineConfig(({ mode }) => {
               if (req.method !== 'POST') {
                 sendJson(res, 405, { error: 'Method not allowed' });
                 return;
+              }
+
+              // Origin Validation (hanya untuk logging di development)
+              const origin = req.headers.origin;
+              if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+                console.warn(`Request dari origin yang tidak terdaftar: ${origin}`);
+                // Di development kita tidak block, hanya logging
               }
 
               try {

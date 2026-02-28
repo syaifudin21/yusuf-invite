@@ -1,4 +1,21 @@
 import { IncomingMessage, ServerResponse } from 'http';
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+// Setup Rate Limiting: 5 requests per minute per IP
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, "1 m"), // 5 requests per 1 minute
+  analytics: true,
+  prefix: "@upstash/ratelimit",
+});
+
+// Allowed origins untuk validasi
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.ALLOWED_ORIGIN // Untuk production (e.g., https://your-app.vercel.app)
+].filter(Boolean) as string[];
 
 // Helper function to parse JSON body
 function parseBody(req: IncomingMessage): Promise<any> {
@@ -42,6 +59,35 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     sendJson(res, 405, { error: 'Method not allowed' });
     return;
   }
+
+  // 1. Origin Validation
+  const origin = req.headers.origin;
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    console.warn(`Blocked request from unauthorized origin: ${origin}`);
+    sendJson(res, 403, { error: 'Unauthorized origin' });
+    return;
+  }
+
+  // 2. Rate Limiting
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+
+  if (!success) {
+    console.warn(`Rate limit exceeded for IP: ${ip}`);
+    res.setHeader('X-RateLimit-Limit', limit.toString());
+    res.setHeader('X-RateLimit-Remaining', remaining.toString());
+    res.setHeader('X-RateLimit-Reset', reset.toString());
+    sendJson(res, 429, { 
+      error: 'Terlalu banyak request. Silakan tunggu sebentar.',
+      retryAfter: Math.ceil((reset - Date.now()) / 1000)
+    });
+    return;
+  }
+
+  // Add rate limit headers to response
+  res.setHeader('X-RateLimit-Limit', limit.toString());
+  res.setHeader('X-RateLimit-Remaining', remaining.toString());
+  res.setHeader('X-RateLimit-Reset', reset.toString());
 
   try {
     const body = await parseBody(req);
