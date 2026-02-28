@@ -30,13 +30,13 @@ const App: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Scroll animation refs
-  const quoteSectionRef = useScrollAnimation();
-  const coupleSectionRef = useScrollAnimation();
-  const eventSectionRef = useScrollAnimation();
-  const gallerySectionRef = useScrollAnimation();
-  const giftSectionRef = useScrollAnimation();
-  const wishesSectionRef = useScrollAnimation();
+  // Scroll animation refs - only enable after invitation is opened
+  const quoteSectionRef = useScrollAnimation({ enabled: isOpen });
+  const coupleSectionRef = useScrollAnimation({ enabled: isOpen });
+  const eventSectionRef = useScrollAnimation({ enabled: isOpen });
+  const gallerySectionRef = useScrollAnimation({ enabled: isOpen });
+  const giftSectionRef = useScrollAnimation({ enabled: isOpen });
+  const wishesSectionRef = useScrollAnimation({ enabled: isOpen });
 
   // Read URL parameter 'to'
   useEffect(() => {
@@ -150,12 +150,14 @@ const App: React.FC = () => {
         {/* Cover Screen */}
         <div className={`absolute inset-0 z-50 bg-[#cce3f3] flex flex-col transition-transform duration-1000 ease-in-out ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
           <div className="relative flex-grow overflow-hidden">
-            <img src="https://picsum.photos/seed/travel/800/1200" alt="Couple" className="w-full h-full object-cover opacity-90" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#cce3f3] via-transparent to-transparent"></div>
+            <img src="/background-1.jpeg" alt="Couple" className="w-full h-full object-cover opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#cce3f3] via-[#cce3f3]/80 to-transparent"></div>
+            <div className="absolute bottom-10 left-0 right-0 p-8 text-center">
+              <h2 className="font-display text-6xl text-primary mb-2">{COUPLE_NAMES.short}</h2>
+              <p className="text-sm uppercase tracking-widest text-gray-500 mb-6 font-bold">{EVENT_DATA.ceremony.date}</p>
+            </div>
           </div>
-          <div className="relative z-10 px-8 py-12 text-center -mt-10 bg-[#cce3f3] rounded-t-3xl">
-            <h2 className="font-display text-6xl text-primary mb-2">{COUPLE_NAMES.short}</h2>
-            <p className="text-sm uppercase tracking-widest text-gray-500 mb-6 font-bold">{EVENT_DATA.ceremony.date}</p>
+          <div className="relative z-10 px-8 pt-12 pb-36 text-center -mt-10 bg-[#cce3f3] rounded-t-3xl">
             <div className="mb-10">
               <p className="text-xs text-gray-500 uppercase mb-1">Yth. Bapak/Ibu/Saudara/i,</p>
               <h3 className="text-xl font-bold text-gray-800">{toName || 'Tamu Undangan'}</h3>
@@ -181,7 +183,7 @@ const App: React.FC = () => {
 
         {/* Scrollable Content (Visible after opening) */}
         {isOpen && (
-          <div className="pb-32">
+          <div className="pb-0">
             {/* Music Control */}
             <button
               onClick={toggleMusic}
@@ -250,10 +252,8 @@ const App: React.FC = () => {
             </section>
 
             {/* Couple Section */}
-            <section ref={coupleSectionRef} id="couple" className="animate-spawn relative overflow-hidden py-20 px-8 bg-bg-light rounded-[3rem] mx-4 shadow-sm my-10">
-              <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -top-10 -right-10 w-64 h-64 opacity-30 transform rotate-180" />
-              <img src="/border.webp" alt="Dekorasi Bunga" className="absolute -bottom-10 -left-10 w-64 h-64 opacity-30" />
-              <div className="text-center mb-16 relative z-10 animate-spawn">
+            <section ref={coupleSectionRef} id="couple" className="animate-spawn relative overflow-hidden py-20 px-8 bg-white/30 backdrop-blur-xl rounded-[3rem] mx-4 shadow-sm my-10 border border-white/50 text-center">
+              <div className="mb-16 relative z-10 animate-spawn">
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Pasangan</p>
                 <h2 className="font-display text-5xl text-primary animate-spawn-delay-1">Kedua Mempelai </h2>
               </div>
@@ -437,9 +437,21 @@ const App: React.FC = () => {
             <footer className="py-20 px-8 text-center bg-bg-dark text-white rounded-t-[3rem] -mt-10">
               <h2 className="font-display text-5xl mb-6">{COUPLE_NAMES.short}</h2>
               <p className="text-sm text-blue-200 mb-12">Terima kasih atas kehadiran & doa restu Anda.</p>
-              <div className="border-t border-blue-900 pt-12 text-[10px] text-blue-400 uppercase tracking-widest leading-relaxed">
-                <p>{COUPLE_NAMES.short} E-Undangan</p>
-                <p>Dibuat dengan ❤️ untuk hari yang spesial</p>
+              <div className="border-t border-blue-900 pt-12 text-[12px] text-blue-100 tracking-widest leading-relaxed">
+                <p className="mb-4">
+                  Butuh undangan digital, website, atau aplikasi mobile? Kami siap membantu!
+                </p>
+
+                {/* WhatsApp Button */}
+                <a
+                  href="https://wa.me/6289529725359"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg mb-12"
+                >
+                  <span className="material-icons-round">chat</span>
+                  <span>Hubungi via WhatsApp</span>
+                </a>
               </div>
             </footer>
           </div>
