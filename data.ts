@@ -33,7 +33,7 @@ export const GALLERY_IMAGES = [
 export const EVENT_DATA = {
   ceremony: {
     title: "Akad Nikah",
-    date: "Rabu, 22 Maret 2026",
+    date: "Minggu, 22 Maret 2026",
     time: "08:00 WIB",
     locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
@@ -42,8 +42,8 @@ export const EVENT_DATA = {
   },
   reception: {
     title: "Resepsi",
-    date: "Rabu, 22 Maret 2026",
-    time: "10:00 - 12:00 WIB",
+    date: "Minggu, 22 Maret 2026",
+    time: "10:00 WIB s/d Selesai",
     locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
