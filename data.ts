@@ -8,18 +8,18 @@ export const COUPLE_NAMES = {
 
 export const COUPLE_DATA = {
   bride: {
-    name: "Lifiatus shalekha",
+    name: "Lifiatus Shalekha",
     short: "Lifia",
     image: "/wanita.webp",
     instagram: "@lifiash57",
-    parents: "Putri dari Bapak Darno (alm) & Ibu Marfuah (alm)",
+    parents: "Putri dari Bapak Darno (Alm) & Ibu Marfuah (Alm)",
   },
   groom: {
     name: "Moh. Yusuf Efendi",
     short: "Yusuf",
     image: "/pria.webp",
     instagram: "@yusuf_efendi_46",
-    parents: "Putra dari Bapak H khasan & Ibu Hj Masriah",
+    parents: "Putra dari Bapak H Khasan & Ibu Hj Masriah",
   },
 };
 
@@ -34,8 +34,8 @@ export const EVENT_DATA = {
   ceremony: {
     title: "Akad Nikah",
     date: "Rabu, 22 Maret 2026",
-    time: "08:00 - 10:00 WIB",
-    locationName: "Rumah mempelai putri",
+    time: "08:00 WIB",
+    locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
       "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
@@ -44,7 +44,7 @@ export const EVENT_DATA = {
     title: "Resepsi",
     date: "Rabu, 22 Maret 2026",
     time: "10:00 - 12:00 WIB",
-    locationName: "Rumah mempelai putri",
+    locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
       "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",

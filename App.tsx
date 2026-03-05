@@ -362,11 +362,11 @@ const App: React.FC = () => {
               <div className="space-y-8">
                 <div className="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-primary relative overflow-hidden animate-spawn animate-spawn-delay-2">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <span className="material-icons-round text-8xl">mosque</span>
+                    <span className="material-icons-round text-8xl">favorite</span>
                   </div>
-                  <h3 className="font-display text-3xl text-gray-800 mb-2">{EVENT_DATA.ceremony.title}</h3>
+                  <h3 className="font-script text-3xl text-gray-800 mb-2">{EVENT_DATA.ceremony.title}</h3>
                   <p className="text-xs font-bold text-gray-400 uppercase mb-4">{EVENT_DATA.ceremony.date}</p>
-                  <p className="inline-block px-4 py-1 bg-gray-100 rounded-full text-sm text-gray-600 mb-6">{EVENT_DATA.ceremony.time}</p>
+                  <p className="inline-block px-4 py-1 bg-gray-100 rounded-full text-md text-gray-600 mb-6">{EVENT_DATA.ceremony.time}</p>
                   <div className="mb-8">
                     <p className="font-bold text-lg text-gray-800">{EVENT_DATA.ceremony.locationName}</p>
                     <p className="text-sm text-gray-500">{EVENT_DATA.ceremony.locationAddress}</p>
@@ -381,9 +381,9 @@ const App: React.FC = () => {
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <span className="material-icons-round text-8xl">restaurant</span>
                   </div>
-                  <h3 className="font-display text-3xl text-gray-800 mb-2">{EVENT_DATA.reception.title}</h3>
+                  <h3 className="font-script text-3xl text-gray-800 mb-2">{EVENT_DATA.reception.title}</h3>
                   <p className="text-xs font-bold text-gray-400 uppercase mb-4">{EVENT_DATA.reception.date}</p>
-                  <p className="inline-block px-4 py-1 bg-gray-100 rounded-full text-sm text-gray-600 mb-6">{EVENT_DATA.reception.time}</p>
+                  <p className="inline-block px-4 py-1 bg-gray-100 rounded-full text-md text-gray-600 mb-6">{EVENT_DATA.reception.time}</p>
                   <div className="mb-8">
                     <p className="font-bold text-lg text-gray-800">{EVENT_DATA.reception.locationName}</p>
                     <p className="text-sm text-gray-500">{EVENT_DATA.reception.locationAddress}</p>
