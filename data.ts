@@ -38,7 +38,7 @@ export const EVENT_DATA = {
     locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
-      "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
+      "RT 05 RW 01, Ds Karang Wungu, Kec Karang Geneng Kab Lamongan",
   },
   reception: {
     title: "Resepsi",
@@ -47,7 +47,7 @@ export const EVENT_DATA = {
     locationName: "Kediaman Mempelai Wanita",
     locationLink: "https://maps.app.goo.gl/CZRntgdwMrKkdoMG6",
     locationAddress:
-      "Rt 05 Rw 01, ds karang wungu, kec karang geneng kab Lamongan",
+      "RT 05 RW 01, Ds Karang Wungu, Kec Karang Geneng Kab Lamongan",
   },
 };
 
